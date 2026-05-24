@@ -1,6 +1,6 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
 // Ganti dengan URL server kamu setelah deploy
-const ORCHESTRATOR_URL = 'ws://localhost:3000';
+const ORCHESTRATOR_URL = 'wss://depin-production-69c1.up.railway.app';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let ws = null;
