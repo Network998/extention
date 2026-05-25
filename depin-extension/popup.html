@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Infly Network</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      width:360px; min-height:500px;
+      background:#080c14; color:#f1f5f9;
+      font-family:'Segoe UI',system-ui,sans-serif;
+    }
+
+    .screen { display:none; flex-direction:column; min-height:500px; padding:24px; }
+    .screen.active { display:flex; }
+
+    /* ── BRAND ── */
+    .brand {
+      display:flex; align-items:center; gap:10px; margin-bottom:24px;
+    }
+    .brand-logo {
+      width:40px; height:40px;
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      border-radius:12px; display:flex; align-items:center; justify-content:center;
+      font-size:20px; box-shadow:0 0 20px #6366f140;
+    }
+    .brand-name { font-size:20px; font-weight:800; }
+    .brand-name span { color:#06b6d4; }
+    .brand-tag { font-size:10px; color:#475569; letter-spacing:1px; text-transform:uppercase; }
+
+    /* ── WELCOME ── */
+    #screen-welcome { align-items:center; justify-content:center; gap:0; }
+    .welcome-globe {
+      width:110px; height:110px; margin:0 auto 20px; position:relative;
+    }
+    .g-ring {
+      position:absolute; inset:0; border-radius:50%;
+      border:1.5px solid #6366f140;
+      animation:rotRing 6s linear infinite;
+    }
+    .g-ring:nth-child(2) { border-color:#06b6d440; transform:rotateY(70deg); animation-direction:reverse; animation-duration:4s; }
+    .g-core {
+      position:absolute; inset:18px;
+      background:radial-gradient(circle at 35% 35%,#6366f1,#0f172a);
+      border-radius:50%; box-shadow:0 0 30px #6366f150;
+    }
+    @keyframes rotRing { to { transform:rotateX(70deg) rotateZ(360deg); } }
+
+    .welcome-title { font-size:22px; font-weight:700; text-align:center; margin-bottom:8px; }
+    .welcome-sub   { font-size:13px; color:#64748b; text-align:center; margin-bottom:28px; line-height:1.6; }
+
+    .welcome-btns { width:100%; display:flex; flex-direction:column; gap:10px; }
+
+    .btn-primary {
+      width:100%; padding:13px;
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      border:none; border-radius:12px;
+      color:#fff; font-size:14px; font-weight:700;
+      cursor:pointer; transition:opacity .2s;
+    }
+    .btn-primary:hover { opacity:.88; }
+
+    .btn-secondary {
+      width:100%; padding:13px;
+      background:#1e293b; border:1px solid #334155;
+      border-radius:12px; color:#94a3b8;
+      font-size:14px; font-weight:600; cursor:pointer; transition:all .2s;
+    }
+    .btn-secondary:hover { border-color:#6366f1; color:#f1f5f9; }
+
+    .divider {
+      display:flex; align-items:center; gap:10px;
+      color:#334155; font-size:12px;
+    }
+    .divider::before,.divider::after { content:''; flex:1; height:1px; background:#1e293b; }
+
+    /* ── FORM SCREENS ── */
+    .screen-title { font-size:20px; font-weight:700; margin-bottom:6px; }
+    .screen-sub   { font-size:13px; color:#64748b; margin-bottom:22px; line-height:1.5; }
+
+    .back-btn {
+      display:flex; align-items:center; gap:6px;
+      background:none; border:none; color:#64748b;
+      font-size:13px; cursor:pointer; margin-bottom:18px; padding:0;
+    }
+    .back-btn:hover { color:#f1f5f9; }
+
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:11px; color:#64748b; margin-bottom:6px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+    .field input {
+      width:100%; padding:11px 14px;
+      background:#1e293b; border:1.5px solid #334155;
+      border-radius:10px; color:#f1f5f9; font-size:14px; outline:none;
+      transition:border-color .2s;
+    }
+    .field input:focus { border-color:#6366f1; }
+    .field input::placeholder { color:#475569; }
+
+    .error-box {
+      background:#450a0a; border:1px solid #7f1d1d;
+      border-radius:8px; padding:10px 14px;
+      font-size:12px; color:#fca5a5; margin-bottom:14px;
+      display:none;
+    }
+
+    .success-box {
+      background:#052e16; border:1px solid #166534;
+      border-radius:8px; padding:10px 14px;
+      font-size:12px; color:#86efac; margin-bottom:14px;
+      display:none;
+    }
+
+    .btn-submit {
+      width:100%; padding:13px; margin-top:4px;
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      border:none; border-radius:12px;
+      color:#fff; font-size:15px; font-weight:700;
+      cursor:pointer; transition:opacity .2s;
+    }
+    .btn-submit:hover { opacity:.88; }
+    .btn-submit:disabled { opacity:.4; cursor:not-allowed; }
+
+    .link-row { text-align:center; font-size:12px; color:#475569; margin-top:14px; }
+    .link-btn { background:none; border:none; color:#818cf8; font-size:12px; cursor:pointer; }
+    .link-btn:hover { color:#a5b4fc; }
+
+    /* ── OTP SCREEN ── */
+    .otp-icon {
+      width:60px; height:60px; margin:0 auto 18px;
+      background:#1e293b; border:1.5px solid #6366f130;
+      border-radius:16px; display:flex; align-items:center; justify-content:center;
+      font-size:28px; box-shadow:0 0 20px #6366f115;
+    }
+
+    .otp-wrap { display:flex; gap:8px; justify-content:center; margin-bottom:22px; }
+    .otp-box {
+      width:44px; height:52px;
+      background:#1e293b; border:1.5px solid #334155;
+      border-radius:10px; text-align:center;
+      font-size:22px; font-weight:700; color:#f1f5f9;
+      outline:none; transition:all .2s; caret-color:#6366f1;
+    }
+    .otp-box:focus { border-color:#6366f1; background:#1e1b4b; box-shadow:0 0 0 3px #6366f115; }
+    .otp-box.filled { border-color:#6366f160; }
+
+    .resend-row { text-align:center; font-size:12px; color:#475569; }
+    .resend-btn { background:none; border:none; color:#6366f1; font-size:12px; cursor:pointer; }
+    .resend-btn:disabled { color:#334155; cursor:not-allowed; }
+
+    /* ── DASHBOARD ── */
+    #screen-dashboard { padding:0; }
+
+    .dash-top {
+      padding:18px 20px 14px;
+      background:linear-gradient(180deg,#0f172a,#080c14);
+      border-bottom:1px solid #1e293b;
+    }
+    .user-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .user-info { display:flex; align-items:center; gap:10px; }
+    .avatar {
+      width:38px; height:38px; border-radius:50%;
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      display:flex; align-items:center; justify-content:center;
+      font-size:15px; font-weight:700;
+    }
+    .u-name { font-size:14px; font-weight:700; }
+    .u-email { font-size:11px; color:#475569; }
+
+    .status-pill {
+      display:flex; align-items:center; gap:5px;
+      background:#0f2e1a; border:1px solid #16653a40;
+      border-radius:20px; padding:5px 10px;
+      font-size:11px; color:#4ade80; font-weight:600;
+    }
+    .status-pill.off { background:#1e0f0f; border-color:#65161640; color:#f87171; }
+    .s-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; animation:blink 2s infinite; }
+    .status-pill.off .s-dot { background:#f87171; animation:none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .pts-card {
+      background:linear-gradient(135deg,#1e1b4b,#0c1a33);
+      border:1px solid #6366f125; border-radius:14px;
+      padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .pts-label { font-size:11px; color:#64748b; margin-bottom:4px; }
+    .pts-val   { font-size:28px; font-weight:800; color:#818cf8; }
+    .pts-unit  { font-size:11px; color:#4f46e5; font-weight:600; }
+    .bw-right  { text-align:right; }
+    .bw-label  { font-size:11px; color:#64748b; margin-bottom:4px; }
+    .bw-val    { font-size:15px; font-weight:700; color:#06b6d4; }
+
+    .dash-body { padding:14px 20px; flex:1; }
+    .sec-title { font-size:11px; font-weight:600; color:#475569; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+    .s-card { background:#1e293b; border-radius:10px; padding:12px; }
+    .s-card .lbl { font-size:10px; color:#64748b; margin-bottom:4px; }
+    .s-card .val { font-size:16px; font-weight:700; }
+    .val.green { color:#4ade80; }
+    .val.blue  { color:#38bdf8; }
+    .val.orange{ color:#fb923c; }
+    .val.muted { font-size:11px; color:#64748b; }
+
+    .activity {
+      background:#0f172a; border:1px solid #1e293b;
+      border-radius:10px; padding:10px; height:66px; overflow:hidden;
+      font-family:monospace; font-size:10px; color:#4ade80;
+    }
+    .log-line { margin-bottom:3px; }
+    .log-line.dim { color:#334155; }
+    .log-line.yellow { color:#fbbf24; }
+
+    .dash-foot { padding:0 20px 18px; }
+    .btn-toggle {
+      width:100%; padding:14px; border:none; border-radius:14px;
+      font-size:15px; font-weight:700; cursor:pointer; transition:all .2s;
+    }
+    .btn-toggle.start {
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      color:#fff; box-shadow:0 4px 20px #6366f130;
+    }
+    .btn-toggle.stop {
+      background:#1e293b; color:#f87171; border:1px solid #f8717125;
+    }
+    .btn-toggle:hover { opacity:.88; }
+
+    .logout-row { text-align:center; padding:4px 0 10px; }
+    .logout-btn { background:none; border:none; color:#334155; font-size:11px; cursor:pointer; }
+    .logout-btn:hover { color:#64748b; }
+
+    .spinner {
+      display:inline-block; width:16px; height:16px;
+      border:2px solid #ffffff30; border-top-color:#fff;
+      border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ══ WELCOME ══════════════════════════════════════ -->
+<div id="screen-welcome" class="screen active">
+  <div class="brand" style="justify-content:center;margin-top:20px;">
+    <div class="brand-logo">⚡</div>
+    <div>
+      <div class="brand-name">Infly <span>Network</span></div>
+      <div class="brand-tag">Bandwidth Sharing Protocol</div>
+    </div>
+  </div>
+
+  <div class="welcome-globe">
+    <div class="g-ring"></div>
+    <div class="g-ring"></div>
+    <div class="g-core"></div>
+  </div>
+
+  <div class="welcome-title">Share & Earn</div>
+  <div class="welcome-sub">Jadikan bandwidth idle kamu<br>menghasilkan reward nyata.</div>
+
+  <div class="welcome-btns">
+    <button class="btn-primary" id="btnGoRegister">Daftar Akun</button>
+    <div class="divider">sudah punya akun?</div>
+    <button class="btn-secondary" id="btnGoLogin">Masuk / Login</button>
+  </div>
+</div>
+
+<!-- ══ REGISTER ══════════════════════════════════════ -->
+<div id="screen-register" class="screen">
+  <button class="back-btn" data-to="welcome">← Kembali</button>
+  <div class="screen-title">Buat Akun</div>
+  <div class="screen-sub">Daftar untuk mulai berbagi bandwidth<br>dan dapatkan reward.</div>
+
+  <div class="error-box" id="reg-error"></div>
+
+  <div class="field">
+    <label>Nama Lengkap</label>
+    <input type="text" id="reg-name" placeholder="Nama kamu">
+  </div>
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="reg-email" placeholder="email@gmail.com">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="reg-pass" placeholder="Minimal 6 karakter">
+  </div>
+  <div class="field">
+    <label>Konfirmasi Password</label>
+    <input type="password" id="reg-pass2" placeholder="Ulangi password">
+  </div>
+
+  <button class="btn-submit" id="btnRegister">Daftar Sekarang</button>
+  <div class="link-row">Sudah punya akun? <button class="link-btn" data-to="login">Login di sini</button></div>
+</div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════ -->
+<div id="screen-login" class="screen">
+  <button class="back-btn" data-to="welcome">← Kembali</button>
+  <div class="screen-title">Masuk Akun</div>
+  <div class="screen-sub">Masukkan email dan password<br>untuk melanjutkan.</div>
+
+  <div class="error-box" id="login-error"></div>
+
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="email@gmail.com">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="Password kamu">
+  </div>
+
+  <button class="btn-submit" id="btnLogin">Login</button>
+  <div class="link-row">Belum punya akun? <button class="link-btn" data-to="register">Daftar di sini</button></div>
+</div>
+
+<!-- ══ VERIFY OTP ═════════════════════════════════════ -->
+<div id="screen-otp" class="screen">
+  <button class="back-btn" id="otpBackBtn">← Kembali</button>
+  <div class="otp-icon">📬</div>
+  <div class="screen-title" style="text-align:center;">Cek Email Kamu</div>
+  <div class="screen-sub" style="text-align:center;">Kode 6 digit dikirim ke<br><strong id="otp-target" style="color:#94a3b8;"></strong></div>
+
+  <div class="error-box" id="otp-error"></div>
+  <div class="success-box" id="otp-success"></div>
+
+  <div class="otp-wrap" id="otpWrap">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+    <input class="otp-box" maxlength="1" type="text" inputmode="numeric">
+  </div>
+
+  <button class="btn-submit" id="btnVerifyOtp" disabled>Verifikasi</button>
+  <div class="resend-row" style="margin-top:14px;">
+    Tidak menerima kode?
+    <button class="resend-btn" id="btnResend" disabled>Kirim ulang</button>
+    <span id="otpCountdown" style="color:#64748b;font-size:12px;"></span>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="dash-top">
+    <div class="user-row">
+      <div class="user-info">
+        <div class="avatar" id="d-avatar">U</div>
+        <div>
+          <div class="u-name" id="d-name">User</div>
+          <div class="u-email" id="d-email">user@gmail.com</div>
+        </div>
+      </div>
+      <div class="status-pill off" id="d-pill">
+        <div class="s-dot"></div>
+        <span id="d-pill-label">Offline</span>
+      </div>
+    </div>
+    <div class="pts-card">
+      <div>
+        <div class="pts-label">🏆 Total Points</div>
+        <div class="pts-val" id="d-pts">0</div>
+        <div class="pts-unit">INFLY PTS</div>
+      </div>
+      <div class="bw-right">
+        <div class="bw-label">📡 Shared</div>
+        <div class="bw-val" id="d-bw">0 KB</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+    <div class="sec-title">Session Stats</div>
+    <div class="stats-grid">
+      <div class="s-card"><div class="lbl">Requests</div><div class="val blue" id="d-req">0</div></div>
+      <div class="s-card"><div class="lbl">Uptime</div><div class="val green" id="d-uptime">—</div></div>
+      <div class="s-card"><div class="lbl">Node Status</div><div class="val orange" id="d-nodestatus">Idle</div></div>
+      <div class="s-card"><div class="lbl">Node ID</div><div class="val muted" id="d-nodeid">—</div></div>
+    </div>
+    <div class="sec-title">Activity</div>
+    <div class="activity" id="d-log"><div class="log-line dim">[ Belum dimulai... ]</div></div>
+  </div>
+
+  <div class="dash-foot">
+    <button class="btn-toggle start" id="d-toggle">▶ Start Node</button>
+  </div>
+  <div class="logout-row">
+    <button class="logout-btn" id="d-logout">Keluar akun</button>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
