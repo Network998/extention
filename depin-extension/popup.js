@@ -117,10 +117,27 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
 });
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
-function populateDashboard(name, email) {
+async function populateDashboard(name, email) {
   document.getElementById('d-avatar').textContent = name.slice(0,2).toUpperCase();
   document.getElementById('d-name').textContent   = name.charAt(0).toUpperCase() + name.slice(1);
   document.getElementById('d-email').textContent  = email;
+
+  // ✅ TAMBAHKAN INI — load total points dari server
+  try {
+    const res  = await fetch(`${SERVER}/api/user/stats?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (data.success) {
+      // Simpan ke local storage sebagai base, session points ditambahkan di atas ini
+      await chrome.storage.local.set({
+        serverPoints: data.totalPoints,
+        serverBytes:  data.totalBytes,
+      });
+      document.getElementById('d-pts').textContent = data.totalPoints;
+      document.getElementById('d-bw').textContent  = fmtBytes(data.totalBytes);
+    }
+  } catch(e) {
+    console.error('[DePIN] Failed to load stats:', e);
+  }
 }
 
 document.getElementById('d-toggle').addEventListener('click', () => toggleNode(!isRunning));
@@ -164,12 +181,18 @@ function toggleNode(start) {
 function pollDash() {
   chrome.runtime.sendMessage({ action: 'getStatus' }, res => {
     if (!res) return;
-    document.getElementById('d-pts').textContent = res.points || 0;
-    document.getElementById('d-bw').textContent  = fmtBytes(res.bytesSent || 0);
-    if (res.nodeId) document.getElementById('d-nodeid').textContent = res.nodeId.slice(0,12)+'...';
-    if (uptimeStart) document.getElementById('d-uptime').textContent = fmtUptime(Date.now()-uptimeStart);
-    chrome.storage.local.get(['status'], d => {
-      document.getElementById('d-nodestatus').textContent = d.status==='busy' ? 'Busy' : 'Idle';
+
+    chrome.storage.local.get(['serverPoints', 'serverBytes', 'status'], d => {
+      // Total = yang tersimpan di server + yang baru di sesi ini (belum tersimpan)
+      const totalPts   = (d.serverPoints || 0) + (res.points || 0);
+      const totalBytes = (d.serverBytes  || 0) + (res.bytesSent || 0);
+
+      document.getElementById('d-pts').textContent = totalPts;
+      document.getElementById('d-bw').textContent  = fmtBytes(totalBytes);
+
+      if (res.nodeId) document.getElementById('d-nodeid').textContent = res.nodeId.slice(0,12)+'...';
+      if (uptimeStart) document.getElementById('d-uptime').textContent = fmtUptime(Date.now()-uptimeStart);
+      document.getElementById('d-nodestatus').textContent = d.status === 'busy' ? 'Busy' : 'Idle';
     });
   });
 }
